@@ -59,3 +59,34 @@ def authenticate_user(db: Session, email: str, password: str):
 def get_all_users(db: Session):
     """Retorna todos los usuarios en la base de datos."""
     return db.query(models.User).all()
+
+
+def update_user(db: Session, user: models.User, user_update: schemas.UserUpdate):
+    """
+    Actualiza la información de un usuario existente.
+    Solo actualiza los campos que fueron proporcionados (no None).
+    """
+    try:
+        # Actualizar campos opcionales solo si fueron proporcionados
+        if user_update.name is not None:
+            user.name = user_update.name
+        if user_update.phone_number is not None:
+            user.phone_number = user_update.phone_number
+        if user_update.gender is not None:
+            user.gender = user_update.gender
+        if user_update.major is not None:
+            user.major = user_update.major
+        if user_update.age is not None:
+            user.age = user_update.age
+        if user_update.role is not None:
+            user.role = user_update.role
+        if user_update.password is not None:
+            user.hashed_password = get_password_hash(user_update.password)
+
+        db.commit()
+        db.refresh(user)
+    except Exception as e:
+        db.rollback()
+        print(f"Error updating user: {e}")
+        return None
+    return user

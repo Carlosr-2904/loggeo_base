@@ -23,6 +23,14 @@ class UserCreate(BaseModel):
             raise ValueError("Solo se permiten correos con dominio @unal.edu.co")
         return v.lower()
 
+    # normalización de campos de texto para consistencia
+    @field_validator("role", "gender", "major", mode="before")
+    @classmethod
+    def normalize_text_fields(cls, v: Optional[str]) -> Optional[str]:
+        if isinstance(v, str):
+            return v.strip().lower()
+        return v
+
 
 class UserOut(BaseModel):
     """Schema para mostrar la información de un usuario (sin la contraseña)"""
@@ -39,6 +47,31 @@ class UserOut(BaseModel):
 
     class Config:
         from_attributes = True  # Permite que Pydantic lea datos desde modelos ORM
+
+
+class UserUpdate(BaseModel):
+    """Schema para actualizar la información del usuario"""
+    name: Optional[str] = None
+    phone_number: Optional[str] = None
+    gender: Optional[str] = None
+    major: Optional[str] = None
+    age: Optional[int] = None
+    role: Optional[str] = None
+    password: Optional[str] = None
+
+    # normalización de campos de texto para consistencia
+    @field_validator("gender", "major", "role", mode="before")
+    @classmethod
+    def normalize_text_fields(cls, v: Optional[str]) -> Optional[str]:
+        if isinstance(v, str):
+            return v.strip().lower()
+        return v
+
+
+class LoginRequest(BaseModel):
+    """Schema para el login del usuario"""
+    username: EmailStr
+    password: str
 
 
 class Token(BaseModel):
