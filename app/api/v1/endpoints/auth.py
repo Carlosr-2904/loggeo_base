@@ -56,11 +56,21 @@ def login_for_access_token(
             detail="Correo o contraseña incorrectos",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = security.create_access_token(
         data={"sub": user.email, "role": user.role},
         expires_delta=access_token_expires,
     )
+    
+    # Registrar el login en la tabla de logs con el token
+    crud_user.create_login_log(
+        db=db,
+        user_id=user.id,
+        email=user.email,
+        token=access_token
+    )
+    
     return {"access_token": access_token, "token_type": "bearer"}
 
 

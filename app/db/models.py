@@ -1,5 +1,5 @@
 # app/db/models.py
-from sqlalchemy import Column, Integer, String, Float, DateTime, func
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from .database import Base
 from datetime import datetime
 
@@ -18,3 +18,13 @@ class User(Base):
     major = Column(String, nullable=True)
     age = Column(Integer, nullable=True)
     rating = Column(Float, default=0.0, nullable=True)
+
+
+class UserLog(Base):
+    __tablename__ = "user_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    email = Column(String, nullable=False, index=True)
+    login_time = Column(DateTime, default=datetime.utcnow, nullable=False)
+    token = Column(String, nullable=False)

@@ -61,6 +61,31 @@ def get_all_users(db: Session):
     return db.query(models.User).all()
 
 
+def create_login_log(
+    db: Session,
+    user_id: int,
+    email: str,
+    token: str
+):
+    """
+    Crea un registro de login en la tabla user_logs.
+    """
+    try:
+        log_entry = models.UserLog(
+            user_id=user_id,
+            email=email,
+            token=token
+        )
+        db.add(log_entry)
+        db.commit()
+        db.refresh(log_entry)
+    except Exception as e:
+        db.rollback()
+        print(f"Error creating login log: {e}")
+        return None
+    return log_entry
+
+
 def update_user(db: Session, user: models.User, user_update: schemas.UserUpdate):
     """
     Actualiza la información de un usuario existente.
